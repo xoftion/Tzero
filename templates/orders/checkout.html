@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Checkout" %}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4 text-center">{% trans "Checkout" %}</h1>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card rounded-xl shadow-sm mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">{% trans "Order Summary" %}</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for item in cart.items.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="my-0">{{ item.product.title }}</h6>
+                            <small class="text-muted">{% trans "Quantity:" %} {{ item.quantity }}</small>
+                        </div>
+                        <span class="text-muted">${{ item.total_price|floatformat:2 }}</span>
+                    </li>
+                    {% endfor %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{% trans "Total (USD)" %}</span>
+                        <strong>${{ cart.total_price|floatformat:2 }}</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card rounded-xl shadow-sm">
+            <div class="card-header">
+                <h4 class="mb-0">{% trans "Confirm and Pay" %}</h4>
+            </div>
+            <div class="card-body">
+                <p>{% trans "By clicking the button below, you will confirm your order and be prompted to fund the escrow from your wallet." %}</p>
+                <form action="{% url 'orders:checkout' %}" method="post">
+                    {% csrf_token %}
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">{% trans "Confirm Order" %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

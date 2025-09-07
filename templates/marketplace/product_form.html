@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% if object %}
+        {% trans "Edit Product" %}
+    {% else %}
+        {% trans "Create New Product" %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card rounded-xl shadow-sm">
+            <div class="card-body p-5">
+                <h2 class="card-title text-center mb-4">
+                    {% if object %}
+                        {% trans "Edit Product" %}
+                    {% else %}
+                        {% trans "Create New Product" %}
+                    {% endif %}
+                </h2>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            {% if object %}
+                                {% trans "Save Changes" %}
+                            {% else %}
+                                {% trans "Create Product" %}
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

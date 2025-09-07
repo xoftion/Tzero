@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to UltrokPay{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1 class="display-4 fw-bold">Welcome to <span class="text-primary">UltrokPay</span></h1>
+    <p class="lead col-lg-8 mx-auto">The universal marketplace and payment system for digital and physical goods, powered by Pi and Sidra currencies.</p>
+    <hr class="my-4">
+    <p>Explore our marketplace or register today to start selling.</p>
+    <a class="btn btn-primary btn-lg rounded-pill px-4 me-2" href="#" role="button">Browse Products</a>
+    <a class="btn btn-gold btn-lg rounded-pill px-4" href="#" role="button">Become a Seller</a>
+</div>
+
+<div class="row mt-5 g-4">
+    <div class="col-md-4">
+        <div class="card h-100 rounded-xl shadow-sm">
+            <div class="card-body text-center">
+                <i class="fa-solid fa-shield-halved fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Secure Escrow</h5>
+                <p class="card-text">All transactions are protected by our decentralized smart contract escrow, ensuring safety for both buyers and sellers.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 rounded-xl shadow-sm">
+            <div class="card-body text-center">
+                <i class="fa-brands fa-bitcoin fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Crypto Powered</h5>
+                <p class="card-text">Embrace the future of payments with native support for Pi and Sidra currencies, with real-time conversions.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 rounded-xl shadow-sm">
+            <div class="card-body text-center">
+                <i class="fa-solid fa-globe fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Global Marketplace</h5>
+                <p class="card-text">Buy and sell a vast range of products, from digital downloads to physical goods, all in one place.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "My Dashboard" %}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% trans "My Dashboard" %}</h1>
+<p class="lead">{% trans "Welcome back," %} {{ user.username }}!</p>
+
+<div class="row g-4 mt-4">
+
+    {# Buyer Dashboard Section #}
+    <div class="col-md-6">
+        <div class="card rounded-xl h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fa-solid fa-shopping-bag me-2 text-primary"></i>{% trans "Buyer Tools" %}</h5>
+                <p class="card-text">{% trans "Track your orders and manage your purchases." %}</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><a href="#">{% trans "My Orders" %}</a></li>
+                    <li class="list-group-item"><a href="#">{% trans "My Reviews" %}</a></li>
+                    <li class="list-group-item"><a href="#">{% trans "My Downloads" %}</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {# Seller Dashboard Section #}
+    {% if is_seller %}
+    <div class="col-md-6">
+        <div class="card rounded-xl h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fa-solid fa-store me-2 text-primary"></i>{% trans "Seller Tools" %}</h5>
+                <p class="card-text">{% trans "Manage your products, view sales, and handle orders." %}</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><a href="#">{% trans "My Products" %}</a></li>
+                    <li class="list-group-item"><a href="#">{% trans "New Product" %}</a></li>
+                    <li class="list-group-item"><a href="#">{% trans "Sales Analytics" %}</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

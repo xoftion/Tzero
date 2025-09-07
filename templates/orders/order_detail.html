@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Order Details" %} #{{ order.id }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% trans "Order Details" %} <span class="text-muted">#{{ order.id }}</span></h1>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card rounded-xl shadow-sm mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">{% trans "Items" %}</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for item in order.items.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="my-0">{{ item.product.title }}</h6>
+                            <small class="text-muted">{% trans "Quantity:" %} {{ item.quantity }}</small>
+                        </div>
+                        <span class="text-muted">${{ item.price_at_purchase_usd|floatformat:2 }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card rounded-xl shadow-sm">
+            <div class="card-header">
+                <h4 class="mb-0">{% trans "Summary" %}</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>{% trans "Status:" %}</strong> <span class="badge bg-primary">{{ order.get_status_display }}</span></p>
+                <p><strong>{% trans "Date:" %}</strong> {{ order.created_at|date:"M d, Y" }}</p>
+                <p><strong>{% trans "Total:" %}</strong> ${{ order.total_price_usd|floatformat:2 }}</p>
+                <hr>
+                <p><strong>{% trans "Buyer:" %}</strong> {{ order.buyer.username }}</p>
+                <p><strong>{% trans "Seller:" %}</strong> {{ order.items.first.product.seller.username }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "chat/chat_box.html" %}
+
+{% endblock %}

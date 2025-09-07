@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Your Shopping Cart" %}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% trans "Your Shopping Cart" %}</h1>
+
+<div class="card rounded-xl shadow-sm">
+    <div class="card-body">
+        {% if cart.items.all %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">{% trans "Product" %}</th>
+                            <th scope="col">{% trans "Price" %}</th>
+                            <th scope="col">{% trans "Quantity" %}</th>
+                            <th scope="col">{% trans "Total" %}</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart.items.all %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% with item.product.images.first as first_image %}
+                                        {% if first_image %}
+                                            <img src="{{ first_image.image.url }}" alt="{{ first_image.alt_text }}" style="width: 60px; height: 60px; object-fit: cover;" class="rounded me-3">
+                                        {% else %}
+                                            <div class="bg-secondary rounded me-3" style="width: 60px; height: 60px;"></div>
+                                        {% endif %}
+                                    {% endwith %}
+                                    <div>
+                                        <a href="{{ item.product.get_absolute_url }}">{{ item.product.title }}</a>
+                                        <small class="d-block text-muted">{{ item.product.category.name }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${{ item.product.price_usd|floatformat:2 }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ item.total_price|floatformat:2 }}</td>
+                            <td>
+                                <form action="{% url 'orders:remove_from_cart' item_id=item.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-end align-items-center">
+                <h4 class="me-4">{% trans "Subtotal:" %} <span class="fw-bold text-primary">${{ cart.total_price|floatformat:2 }}</span></h4>
+                <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-lg">{% trans "Proceed to Checkout" %}</a>
+            </div>
+        {% else %}
+            <div class="text-center p-5">
+                <p class="lead">{% trans "Your cart is empty." %}</p>
+                <a href="{% url 'marketplace:product_list' %}" class="btn btn-outline-primary">{% trans "Continue Shopping" %}</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
