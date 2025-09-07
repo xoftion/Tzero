@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Ticket" %} #{{ ticket.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0">{{ ticket.title }}</h1>
+        <span class="text-muted">Ticket #{{ ticket.id }}</span>
+    </div>
+    <span class="badge bg-primary p-2 fs-6">{{ ticket.get_status_display }}</span>
+</div>
+
+<div class="card rounded-xl shadow-sm mb-4">
+    <div class="card-body">
+        <p><strong>{% trans "Priority:" %}</strong> {{ ticket.get_priority_display }}</p>
+        <p><strong>{% trans "Related Order:" %}</strong> {% if ticket.order %}<a href="{{ ticket.order.get_absolute_url }}">Order #{{ ticket.order.id }}</a>{% else %}N/A{% endif %}</p>
+        <p><strong>{% trans "Created:" %}</strong> {{ ticket.created_at|date:"M d, Y, P" }}</p>
+    </div>
+</div>
+
+<div class="card rounded-xl shadow-sm">
+    <div class="card-header">
+        <h4 class="mb-0">{% trans "Conversation" %}</h4>
+    </div>
+    <div class="card-body">
+        {% for message in ticket.messages.all %}
+        <div class="d-flex mb-4">
+            <div class="flex-shrink-0">
+                <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded-circle" style="width: 50px; height: 50px;">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <strong>{{ message.user.username }}</strong>
+                        <span class="text-muted">{{ message.created_at|timesince }} ago</span>
+                    </div>
+                    <div class="card-body">
+                        {{ message.message|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="card-footer">
+        <form method="post">
+            {% csrf_token %}
+            {{ message_form.as_p }}
+            <button type="submit" class="btn btn-primary">{% trans "Post Reply" %}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

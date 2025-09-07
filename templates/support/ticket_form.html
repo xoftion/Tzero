@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create Support Ticket" %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card rounded-xl shadow-sm">
+            <div class="card-body p-5">
+                <h2 class="card-title text-center mb-4">{% trans "Create a New Support Ticket" %}</h2>
+                <p class="text-center text-muted mb-4">{% trans "Please describe your issue in detail." %}</p>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">{% trans "Submit Ticket" %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

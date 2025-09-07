@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions
-from .models import Product
-from .serializers import ProductSerializer, ProductCreateSerializer
-from .permissions import IsSellerOrReadOnly, IsOwnerOrReadOnly
+from ..models import Product
+from ..serializers import ProductSerializer, ProductCreateSerializer
+from ..permissions import IsSellerOrReadOnly, IsOwnerOrReadOnly
 
 class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.filter(is_active=True)

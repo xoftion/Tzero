@@ -32,6 +32,7 @@ urlpatterns = [
     path('accounts/', include('users.urls_web', namespace='users')),
     path('marketplace/', include('marketplace.urls_web', namespace='marketplace')),
     path('cart/', include('orders.urls', namespace='orders')),
+    path('support/', include('support.urls', namespace='support')),
 
     # API URLs
     path('api/auth/', include('users.urls_api')),
