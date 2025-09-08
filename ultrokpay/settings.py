@@ -7,15 +7,13 @@ from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
 from datetime import timedelta
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
-# !! TEMPORARY WORKAROUND for local environment issue. Will be reverted.
-SECRET_KEY = "meid5ijk^)ok9$9tim)_f4)n((%_av3r2!#*8(2)%onh4a+4*e"
-# SECRET_KEY = os.environ.get('SECRET_KEY')
-
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 't')
+SECRET_KEY = os.environ.get('SECRET_KEY')
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 INSTALLED_APPS = [
@@ -76,16 +74,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ultrokpay.wsgi.application'
 ASGI_APPLICATION = 'ultrokpay.asgi.application'
 
-# !! TEMPORARY WORKAROUND for local environment issue.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(default='sqlite:///db.sqlite3', conn_max_age=600)
 }
-# DATABASES = {
-#     'default': dj_database_url.config(default='sqlite:///db.sqlite3', conn_max_age=600)
-# }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -147,5 +138,9 @@ CELERY_BEAT_SCHEDULE = {
     'check-escrow-funding-every-5-minutes': {
         'task': 'core.tasks.check_escrow_funding_task',
         'schedule': 300.0,
+    },
+    'process-daily-sales-summary': {
+        'task': 'analytics.tasks.process_daily_sales',
+        'schedule': crontab(hour=1, minute=0),
     },
 }
