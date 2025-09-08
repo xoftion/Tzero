@@ -1,15 +1,19 @@
 import random
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from faker import Faker
 from users.models import User
-from marketplace.models import Category, Product, Tag
+from marketplace.models import Category, Product, Tag, Review
+from orders.models import Order, OrderItem
+from support.models import SupportTicket
 
 class Command(BaseCommand):
-    help = 'Seeds the database with sample data for UltrokPay'
+    help = 'Seeds the database with a large set of sample data for UltrokPay'
 
     @transaction.atomic
     def handle(self, *args, **kwargs):
-        self.stdout.write(self.style.SUCCESS('Seeding database...'))
+        self.stdout.write(self.style.SUCCESS('Seeding database with enhanced data...'))
+        fake = Faker()
 
         # Clean up existing data
         self.stdout.write('Deleting old data...')
@@ -17,71 +21,82 @@ class Command(BaseCommand):
         Category.objects.all().delete()
         Product.objects.all().delete()
         Tag.objects.all().delete()
+        Order.objects.all().delete()
+        SupportTicket.objects.all().delete()
 
         # Create Superuser
         self.stdout.write('Creating superuser...')
-        User.objects.create_superuser(
-            username='admin',
-            email='admin@ultrokpay.com',
-            password='adminpassword',
-            role=User.Role.ADMIN
-        )
+        admin_user = User.objects.create_superuser('admin', 'admin@ultrokpay.com', 'adminpassword', role=User.Role.ADMIN, is_active=True)
 
         # Create Users
         self.stdout.write('Creating users...')
-        buyer1 = User.objects.create_user(username='buyer1', email='buyer1@example.com', password='password123', role=User.Role.BUYER)
-        seller1 = User.objects.create_user(username='seller1', email='seller1@example.com', password='password123', role=User.Role.SELLER, kyc_status=User.KYCStatus.VERIFIED)
-        seller2 = User.objects.create_user(username='seller2', email='seller2@example.com', password='password123', role=User.Role.SELLER, kyc_status=User.KYCStatus.VERIFIED)
+        buyers = [User.objects.create_user(f'buyer{i}', f'buyer{i}@example.com', 'password123', role=User.Role.BUYER, is_active=True) for i in range(10)]
+        sellers = [User.objects.create_user(f'seller{i}', f'seller{i}@example.com', 'password123', role=User.Role.SELLER, kyc_status=User.KYCStatus.VERIFIED, is_active=True) for i in range(5)]
 
-        # Create Categories
-        self.stdout.write('Creating categories...')
+        # Create Categories and Tags
+        self.stdout.write('Creating categories and tags...')
+        tags = [Tag.objects.create(name=name) for name in ['Python', 'JavaScript', 'Sci-Fi', 'Fantasy', 'Mobile', 'Fashion', 'Home Decor', 'Gadget', 'Productivity', 'Art']]
+
         cat_digital = Category.objects.create(name='Digital Products')
         cat_ebooks = Category.objects.create(name='Ebooks', parent=cat_digital)
         cat_software = Category.objects.create(name='Software', parent=cat_digital)
+        cat_courses = Category.objects.create(name='Online Courses', parent=cat_digital)
 
         cat_physical = Category.objects.create(name='Physical Goods')
         cat_electronics = Category.objects.create(name='Electronics', parent=cat_physical)
         cat_clothing = Category.objects.create(name='Clothing', parent=cat_physical)
+        cat_home = Category.objects.create(name='Home & Garden', parent=cat_physical)
 
-        # Create Tags
-        self.stdout.write('Creating tags...')
-        tag_python = Tag.objects.create(name='Python')
-        tag_django = Tag.objects.create(name='Django')
-        tag_fiction = Tag.objects.create(name='Fiction')
-        tag_mobile = Tag.objects.create(name='Mobile')
-        tag_fashion = Tag.objects.create(name='Fashion')
+        categories = [cat_ebooks, cat_software, cat_courses, cat_electronics, cat_clothing, cat_home]
 
         # Create Products
         self.stdout.write('Creating products...')
+        products = []
+        for i in range(30):
+            seller = random.choice(sellers)
+            category = random.choice(categories)
+            product_type = 'DIGITAL' if category.parent == cat_digital else 'PHYSICAL'
+            product = Product.objects.create(
+                product_type=product_type,
+                seller=seller,
+                category=category,
+                title=fake.company() + ' ' + ('Software' if product_type == 'DIGITAL' else 'Device'),
+                description=fake.paragraph(nb_sentences=5),
+                price_usd=random.uniform(5.0, 1500.0),
+                currency_preference=random.choice(['PI', 'SIDRA'])
+            )
+            product.tags.set(random.sample(tags, k=random.randint(1, 3)))
+            products.append(product)
 
-        # Digital Products
-        p1 = Product.objects.create(
-            product_type='DIGITAL', seller=seller1, category=cat_software,
-            title='Pro Web Analytics Tool', description='A powerful SaaS for tracking website performance.',
-            price_usd=49.99, currency_preference='PI'
-        )
-        p1.tags.add(tag_python, tag_django)
+        # Create Orders, Reviews, and Support Tickets
+        self.stdout.write('Creating orders, reviews, and tickets...')
+        for buyer in buyers:
+            for _ in range(random.randint(1, 5)): # Each buyer makes 1-5 orders
+                product_to_buy = random.choice(products)
+                order = Order.objects.create(
+                    buyer=buyer,
+                    total_price_usd=product_to_buy.price_usd,
+                    status=random.choice(['PAID', 'DELIVERED'])
+                )
+                OrderItem.objects.create(order=order, product=product_to_buy, quantity=1, price_at_purchase_usd=product_to_buy.price_usd)
 
-        p2 = Product.objects.create(
-            product_type='DIGITAL', seller=seller2, category=cat_ebooks,
-            title='The Last Starlight: A Sci-Fi Novel', description='A thrilling journey across the galaxy.',
-            price_usd=9.99, currency_preference='SIDRA'
-        )
-        p2.tags.add(tag_fiction)
+                # Create a review for some orders
+                if random.random() > 0.5:
+                    Review.objects.create(
+                        product=product_to_buy,
+                        user=buyer,
+                        order=order,
+                        rating=random.randint(3, 5),
+                        comment=fake.sentence()
+                    )
 
-        # Physical Products
-        p3 = Product.objects.create(
-            product_type='PHYSICAL', seller=seller1, category=cat_electronics,
-            title='Quantum Core Smartphone', description='The latest smartphone with a quantum processor.',
-            price_usd=899.99, currency_preference='PI'
-        )
-        p3.tags.add(tag_mobile)
+                # Create a support ticket for some orders
+                if random.random() > 0.7:
+                    SupportTicket.objects.create(
+                        user=buyer,
+                        order=order,
+                        title=f'Issue with order #{order.id}',
+                        priority=random.choice(['LOW', 'MEDIUM', 'HIGH'])
+                    )
 
-        p4 = Product.objects.create(
-            product_type='PHYSICAL', seller=seller2, category=cat_clothing,
-            title='Designer Silk Scarf', description='A beautiful hand-made silk scarf.',
-            price_usd=75.00, currency_preference='SIDRA'
-        )
-        p4.tags.add(tag_fashion)
-
-        self.stdout.write(self.style.SUCCESS('Database seeded successfully!'))
+        self.stdout.write(self.style.SUCCESS('Enhanced database seeding complete!'))

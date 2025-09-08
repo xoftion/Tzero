@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Verification Email Sent" %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card rounded-xl shadow-sm">
+            <div class="card-body p-5 text-center">
+                <i class="fa-solid fa-envelope-circle-check fa-3x text-primary mb-4"></i>
+                <h2 class="card-title mb-4">{% trans "Please Check Your Email" %}</h2>
+                <p class="lead">{% trans "We've sent an email to you for verification. Follow the link provided to finalize the signup process." %}</p>
+                <p>{% trans "If you don't receive an email, please make sure you've entered the address you registered with, and check your spam folder." %}</p>
+                <hr>
+                <a href="{% url 'core:home' %}" class="btn btn-outline-primary">{% trans "Return to Homepage" %}</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -23,6 +23,8 @@ class UserRegistrationForm(UserCreationForm):
         self.fields['username'].widget.attrs.update({'class': 'form-control'})
 
 
+from django.core.exceptions import ValidationError
+
 class UserLoginForm(AuthenticationForm):
     username = forms.EmailField(
         label="Email",
@@ -33,3 +35,19 @@ class UserLoginForm(AuthenticationForm):
         strip=False,
         widget=forms.PasswordInput(attrs={'autocomplete': 'current-password', 'class': 'form-control'}),
     )
+
+    def confirm_login_allowed(self, user):
+        if not user.is_active:
+            raise ValidationError(
+                ("This account is inactive. Please check your email for a verification link."),
+                code='inactive',
+            )
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('username', 'profile_picture')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'profile_picture': forms.FileInput(attrs={'class': 'form-control'}),
+        }
