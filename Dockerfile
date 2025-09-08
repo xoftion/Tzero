@@ -18,14 +18,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy the entrypoint script
+COPY entrypoint.sh /app/entrypoint.sh
+
 # Copy the rest of the application's code
 COPY . .
 
 # Expose the port the app runs on
 EXPOSE 8000
 
-# The command to run the application
-# This will be overridden by docker-compose for development
-# and used by Render for production.
-# We'll create an entrypoint script for running migrations later.
+# Set the entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# The command to run as the main process
 CMD ["gunicorn", "ultrokpay.wsgi:application", "--bind", "0.0.0.0:8000"]

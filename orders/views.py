@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import View, DetailView, TemplateView
+from django.views.generic import View, DetailView, TemplateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import Q
@@ -8,6 +8,18 @@ from marketplace.models import Product
 from escrow.models import Escrow
 from core.services import BlockchainService
 import uuid
+
+class OrderListView(LoginRequiredMixin, ListView):
+    model = Order
+    template_name = 'orders/order_list.html'
+    context_object_name = 'orders'
+    paginate_by = 10
+
+    def get_queryset(self):
+        seller_subquery = Order.objects.filter(items__product__seller=self.request.user)
+        return Order.objects.filter(
+            Q(buyer=self.request.user) | Q(pk__in=seller_subquery)
+        ).distinct().order_by('-created_at')
 
 class AddToCartView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):

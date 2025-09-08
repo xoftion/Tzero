@@ -93,6 +93,10 @@
                             <ul class="dropdown-menu dropdown-menu-end rounded-xl">
                                 <li><a class="dropdown-item" href="{% url 'users:dashboard' %}"><i class="fa-solid fa-table-columns fa-fw me-2"></i>Dashboard</a></li>
                                 <li><a class="dropdown-item" href="{% url 'users:profile' %}"><i class="fa-solid fa-id-card fa-fw me-2"></i>Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'support:ticket_list' %}"><i class="fa-solid fa-life-ring fa-fw me-2"></i>Support</a></li>
+                                {% if user.is_seller %}
+                                <li><a class="dropdown-item" href="{% url 'analytics:dashboard' %}"><i class="fa-solid fa-chart-line fa-fw me-2"></i>Analytics</a></li>
+                                {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'users:logout' %}"><i class="fa-solid fa-right-from-bracket fa-fw me-2"></i>Logout</a></li>
                             </ul>
@@ -113,6 +117,15 @@
     </nav>
 
     <main class="container my-5">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-xl" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
         {% block content %}
         {% endblock %}
     </main>
